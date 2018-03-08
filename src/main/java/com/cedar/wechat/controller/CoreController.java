@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("")
 public class CoreController {
-    //增加日志
+    // 增加日志
     private static Logger log = LoggerFactory.getLogger(CoreController.class);
 
     @Resource

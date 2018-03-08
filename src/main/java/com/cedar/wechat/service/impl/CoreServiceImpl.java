@@ -1,10 +1,13 @@
 package com.cedar.wechat.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.cedar.wechat.model.resp.Article;
-import com.cedar.wechat.model.resp.ArticleRespMsg;
+import com.cedar.wechat.model.resp.NewsRespMsg;
 import com.cedar.wechat.model.resp.TextRespMsg;
 import com.cedar.wechat.service.CoreService;
-import com.cedar.wechat.util.MsgUtil;
+import com.cedar.wechat.service.ReqService;
+import com.cedar.wechat.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 @Service
 public class CoreServiceImpl implements CoreService {
@@ -27,44 +30,59 @@ public class CoreServiceImpl implements CoreService {
      * @return
      */
     public String processRequest(HttpServletRequest request) {
+        try {
+            // xml请求解析
+            String json = MsgUtil.parseJson(request);
+            log.info("入参：{}", json);
+
+            JSONObject obj = JSON.parseObject(json);
+            // 消息类型
+            String msgType = obj.getString(ReqMsgKeyEnum.MSG_TYPE.getValue());
+            ReqService reqService = SpringContextHolder.getReqService(msgType);
+            return reqService.processRequest(ReqMsgUtil.initParams(json));
+        } catch (Exception e) {
+            log.error("请求处理异常，请稍候尝试！", e);
+            return "请求处理异常，请稍候尝试！";
+        }
+    }
+
+    private String init(HttpServletRequest request) {
         String respMessage = null;
         try {
             // 默认返回的文本消息内容
             String respContent = "请求处理异常，请稍候尝试！";
             // xml请求解析
-            Map<String, String> requestMap = MsgUtil.parseXml(request);
-            log.info("入参：{}", requestMap.toString());
+            Properties params = null;//MsgUtil.parseXml(request);
+            log.info("入参：{}", params.toString());
             // 发送方帐号（open_id）
-            String fromUserName = requestMap.get("FromUserName");
+            String fromUserName = params.getProperty("FromUserName");
             // 公众帐号
-            String toUserName = requestMap.get("ToUserName");
+            String toUserName = params.getProperty("ToUserName");
             // 消息类型
-            String msgType = requestMap.get("MsgType");
+            String msgType = params.getProperty("MsgType");
             // 回复文本消息
             TextRespMsg textRespMsg = new TextRespMsg();
             textRespMsg.setToUserName(fromUserName);
             textRespMsg.setFromUserName(toUserName);
             textRespMsg.setCreateTime(new Date().getTime());
-            textRespMsg.setMsgType(MsgUtil.RESP_MESSAGE_TYPE_TEXT);
-            textRespMsg.setFuncFlag(0);
+            textRespMsg.setMsgType(RespMsgTypeEnum.TEXT);
 
             // 创建图文消息
-            ArticleRespMsg articleRespMsg = new ArticleRespMsg();
+            NewsRespMsg articleRespMsg = new NewsRespMsg();
             articleRespMsg.setToUserName(fromUserName);
             articleRespMsg.setFromUserName(toUserName);
             articleRespMsg.setCreateTime(new Date().getTime());
-            articleRespMsg.setMsgType(MsgUtil.RESP_MESSAGE_TYPE_NEWS);
-            articleRespMsg.setFuncFlag(0);
+            articleRespMsg.setMsgType(RespMsgTypeEnum.NEWS);
 
             List<Article> articleList = new ArrayList<>();
             //点击菜单id
-            String EventKey = requestMap.get("EventKey");
+            String EventKey = params.getProperty("EventKey");
             // 接收文本消息内容
-            String content = requestMap.get("Content");
+            String content = params.getProperty("Content");
             // 自动回复文本消息
-            if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_TEXT)) {
+            if (msgType.equals(ReqMsgTypeEnum.TEXT.getValue())) {
 
-                //如果用户发送表情，则回复同样表情。
+                // 如果用户发送表情，则回复同样表情。
                 if (MsgUtil.isQqFace(content)) {
                     respContent = content;
                     textRespMsg.setContent(respContent);
@@ -160,22 +178,24 @@ public class CoreServiceImpl implements CoreService {
                     }
                 }
             }
+
+
             // 图片消息
-            else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_IMAGE)) {
+            else if (msgType.equals(ReqMsgTypeEnum.IMAGE.getValue())) {
                 respContent = "您发送的是图片消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 地理位置消息
-            else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_LOCATION)) {
+            else if (msgType.equals(ReqMsgTypeEnum.LOCATION.getValue())) {
                 respContent = "您发送的是地理位置消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 链接消息
-            else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_LINK)) {
+            else if (msgType.equals(ReqMsgTypeEnum.LINK.getValue())) {
                 respContent = "您发送的是链接消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
@@ -183,16 +203,16 @@ public class CoreServiceImpl implements CoreService {
 
             }
             // 音频消息
-            else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_VOICE)) {
+            else if (msgType.equals(ReqMsgTypeEnum.VOICE.getValue())) {
                 respContent = "您发送的是音频消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 事件推送
-            else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_EVENT)) {
+            else if (msgType.equals(ReqMsgTypeEnum.EVENT.getValue())) {
                 // 事件类型
-                String eventType = requestMap.get("Event");
+                String eventType = params.getProperty("Event");
                 // 自定义菜单点击事件
                 if (eventType.equals(MsgUtil.EVENT_TYPE_CLICK)) {
                     switch (EventKey) {

@@ -1,77 +1,28 @@
 package com.cedar.wechat.util;
 
-import java.io.InputStream;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-
 import com.cedar.wechat.model.resp.Article;
-import com.cedar.wechat.model.resp.ArticleRespMsg;
+import com.cedar.wechat.model.resp.NewsRespMsg;
 import com.cedar.wechat.model.resp.TextRespMsg;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.core.util.QuickWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
+import java.io.Writer;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 消息工具类
  */
 public class MsgUtil {
-
-    /**
-     * 返回消息类型：文本
-     */
-    public static final String RESP_MESSAGE_TYPE_TEXT = "text";
-
-    /**
-     * 返回消息类型：音乐
-     */
-    public static final String RESP_MESSAGE_TYPE_MUSIC = "music";
-
-    /**
-     * 返回消息类型：图文
-     */
-    public static final String RESP_MESSAGE_TYPE_NEWS = "news";
-
-    /**
-     * 请求消息类型：文本
-     */
-    public static final String REQ_MESSAGE_TYPE_TEXT = "text";
-
-    /**
-     * 请求消息类型：图片
-     */
-    public static final String REQ_MESSAGE_TYPE_IMAGE = "image";
-
-    /**
-     * 请求消息类型：链接
-     */
-    public static final String REQ_MESSAGE_TYPE_LINK = "link";
-
-    /**
-     * 请求消息类型：地理位置
-     */
-    public static final String REQ_MESSAGE_TYPE_LOCATION = "location";
-
-    /**
-     * 请求消息类型：音频
-     */
-    public static final String REQ_MESSAGE_TYPE_VOICE = "voice";
-
-    /**
-     * 请求消息类型：推送
-     */
-    public static final String REQ_MESSAGE_TYPE_EVENT = "event";
 
     /**
      * 事件类型：subscribe(订阅)and 未关注群体扫描二维码
@@ -103,40 +54,46 @@ public class MsgUtil {
 
     /**
      * 解析微信发来的请求（XML）
+     *
      * @param request
      * @return
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
     //屏蔽某些编译时的警告信息(在强制类型转换的时候编译器会给出警告)
-    public static Map<String, String> parseXml(HttpServletRequest request) throws Exception {
-        // 将解析结果存储在HashMap中
-        Map<String, String> map = new HashMap<String, String>();
+    public static String parseJson(HttpServletRequest request) throws Exception {
+        // 将解析结果拼接一个json串
+        StringBuilder json = new StringBuilder();
 
         // 从request中取得输入流
         InputStream inputStream = request.getInputStream();
         // 读取输入流
         SAXReader reader = new SAXReader();
         Document document = reader.read(inputStream);
+
         // 得到xml根元素
         Element root = document.getRootElement();
         // 得到根元素的所有子节点
         List<Element> elementList = root.elements();
 
         // 遍历所有子节点
+        json.append("{");
         for (Element e : elementList) {
-            map.put(e.getName(), e.getText());
+            json.append("\"").append(e.getName()).append("\":\"").append(e.getText()).append("\",");
         }
+        json.deleteCharAt(json.length() - 1);
+        json.append("}");
 
         // 释放资源
         inputStream.close();
         inputStream = null;
 
-        return map;
+        return json.toString();
     }
 
     /**
      * 文本消息对象转换成xml
+     *
      * @param textRespMsg 文本消息对象
      * @return xml
      */
@@ -147,10 +104,11 @@ public class MsgUtil {
 
     /**
      * 图文消息对象转换成xml
+     *
      * @param articleRespMsg 图文消息对象
      * @return xml
      */
-    public static String newsMessageToXml(ArticleRespMsg articleRespMsg) {
+    public static String newsMessageToXml(NewsRespMsg articleRespMsg) {
         xstream.alias("xml", articleRespMsg.getClass());
         xstream.alias("item", Article.class);
         return xstream.toXML(articleRespMsg);
@@ -158,6 +116,7 @@ public class MsgUtil {
 
     /**
      * 扩展xstream，使其支持CDATA块
+     *
      * @date 2013-05-19
      */
     private static XStream xstream = new XStream(new XppDriver() {
@@ -186,6 +145,7 @@ public class MsgUtil {
 
     /**
      * 判断是否是QQ表情
+     *
      * @param content
      * @return
      */
