@@ -1,8 +1,7 @@
 package com.cedar.wechat.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import com.cedar.wechat.service.CoreService;
+import com.cedar.wechat.util.SignUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cedar.wechat.service.CoreService;
-import com.cedar.wechat.util.SignUtil;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("")
@@ -40,7 +39,9 @@ public class CoreController {
     // 调用核心业务类接收消息、处理消息跟推送消息
     @RequestMapping(value = "", method = RequestMethod.POST)
     public String post(HttpServletRequest req) {
+        log.info("post");
         String respMessage = coreService.processRequest(req);
+        log.info("响应：{}", respMessage);
         return respMessage;
     }
 }

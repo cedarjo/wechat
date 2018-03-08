@@ -1,5 +1,8 @@
 package com.cedar.wechat.model;
 
+import lombok.ToString;
+
+@ToString
 public class AccessToken {
     // 获取到的凭证
     private String token;

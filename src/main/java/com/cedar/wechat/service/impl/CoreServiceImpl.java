@@ -1,21 +1,19 @@
 package com.cedar.wechat.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.cedar.wechat.model.resp.Article;
 import com.cedar.wechat.model.resp.ArticleRespMsg;
 import com.cedar.wechat.model.resp.TextRespMsg;
 import com.cedar.wechat.service.CoreService;
 import com.cedar.wechat.util.MsgUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CoreServiceImpl implements CoreService {
@@ -24,6 +22,7 @@ public class CoreServiceImpl implements CoreService {
 
     /**
      * 处理微信发来的请求（包括事件的推送）
+     *
      * @param request
      * @return
      */
@@ -34,6 +33,7 @@ public class CoreServiceImpl implements CoreService {
             String respContent = "请求处理异常，请稍候尝试！";
             // xml请求解析
             Map<String, String> requestMap = MsgUtil.parseXml(request);
+            log.info("入参：{}", requestMap.toString());
             // 发送方帐号（open_id）
             String fromUserName = requestMap.get("FromUserName");
             // 公众帐号
@@ -49,16 +49,16 @@ public class CoreServiceImpl implements CoreService {
             textRespMsg.setFuncFlag(0);
 
             // 创建图文消息
-            ArticleRespMsg newsMessage = new ArticleRespMsg();
-            newsMessage.setToUserName(fromUserName);
-            newsMessage.setFromUserName(toUserName);
-            newsMessage.setCreateTime(new Date().getTime());
-            newsMessage.setMsgType(MsgUtil.RESP_MESSAGE_TYPE_NEWS);
-            newsMessage.setFuncFlag(0);
+            ArticleRespMsg articleRespMsg = new ArticleRespMsg();
+            articleRespMsg.setToUserName(fromUserName);
+            articleRespMsg.setFromUserName(toUserName);
+            articleRespMsg.setCreateTime(new Date().getTime());
+            articleRespMsg.setMsgType(MsgUtil.RESP_MESSAGE_TYPE_NEWS);
+            articleRespMsg.setFuncFlag(0);
 
             List<Article> articleList = new ArrayList<>();
             //点击菜单id
-            String EventKey =requestMap.get("EventKey");
+            String EventKey = requestMap.get("EventKey");
             // 接收文本消息内容
             String content = requestMap.get("Content");
             // 自动回复文本消息
@@ -99,9 +99,9 @@ public class CoreServiceImpl implements CoreService {
                                     "http://www.sinaimg.cn/dy/slidenews/31_img/2016_38/28380_733695_698372.jpg");
                             article.setUrl("http://www.baidu.com");
                             articleList.add(article);
-                            newsMessage.setArticleCount(articleList.size());
-                            newsMessage.setArticles(articleList);
-                            respMessage = MsgUtil.newsMessageToXml(newsMessage);
+                            articleRespMsg.setArticleCount(articleList.size());
+                            articleRespMsg.setArticles(articleList);
+                            respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
                             break;
                         }
                         case "12": {
@@ -136,9 +136,9 @@ public class CoreServiceImpl implements CoreService {
                             articleList.add(article1);
                             articleList.add(article2);
                             articleList.add(article3);
-                            newsMessage.setArticleCount(articleList.size());
-                            newsMessage.setArticles(articleList);
-                            respMessage = MsgUtil.newsMessageToXml(newsMessage);
+                            articleRespMsg.setArticleCount(articleList.size());
+                            articleRespMsg.setArticles(articleList);
+                            respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
                             break;
                         }
 
@@ -192,33 +192,32 @@ public class CoreServiceImpl implements CoreService {
             // 事件推送
             else if (msgType.equals(MsgUtil.REQ_MESSAGE_TYPE_EVENT)) {
                 // 事件类型
-                String eventType =requestMap.get("Event");
+                String eventType = requestMap.get("Event");
                 // 自定义菜单点击事件
                 if (eventType.equals(MsgUtil.EVENT_TYPE_CLICK)) {
-                    switch (EventKey){
-                        case "11":{
+                    switch (EventKey) {
+                        case "11": {
                             respContent = "这是第一栏第一个";
                             break;
                         }
-                        case "12":{
+                        case "12": {
                             respContent = "这是第一栏第一个";
                             break;
                         }
-                        case "21":{
+                        case "21": {
                             respContent = "这是第二栏第一个";
                             break;
                         }
 
-                        default:{
-                            log.error("开发者反馈：EventKey值没找到，它是:"+EventKey);
-                            respContent= "很抱歉，此按键功能正在升级无法使用";
+                        default: {
+                            log.error("开发者反馈：EventKey值没找到，它是:" + EventKey);
+                            respContent = "很抱歉，此按键功能正在升级无法使用";
                         }
                     }
                     textRespMsg.setContent(respContent);
                     // 将文本消息对象转换成xml字符串
                     respMessage = MsgUtil.textMessageToXml(textRespMsg);
-                }
-                else if(eventType.equals(MsgUtil.EVENT_TYPE_VIEW)){
+                } else if (eventType.equals(MsgUtil.EVENT_TYPE_VIEW)) {
                     // 对于点击菜单转网页暂时不做推送
                 }
 
@@ -233,11 +232,10 @@ public class CoreServiceImpl implements CoreService {
                     article.setPicUrl("http://www.sinaimg.cn/dy/slidenews/31_img/2016_38/28380_733695_698372.jpg");
                     article.setUrl("http://www.baidu.com");
                     articleList.add(article);
-                    newsMessage.setArticleCount(articleList.size());
-                    newsMessage.setArticles(articleList);
-                    respMessage = MsgUtil.newsMessageToXml(newsMessage);
-                }
-                else if(eventType.equals(MsgUtil.EVENT_TYPE_SCAN)){
+                    articleRespMsg.setArticleCount(articleList.size());
+                    articleRespMsg.setArticles(articleList);
+                    respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
+                } else if (eventType.equals(MsgUtil.EVENT_TYPE_SCAN)) {
                     //测试单图文回复
                     Article article = new Article();
                     article.setTitle("这是已关注用户扫描二维码弹到的界面");
@@ -247,9 +245,9 @@ public class CoreServiceImpl implements CoreService {
                     article.setPicUrl("http://www.sinaimg.cn/dy/slidenews/31_img/2016_38/28380_733695_698372.jpg");
                     article.setUrl("http://www.baidu.com");
                     articleList.add(article);
-                    newsMessage.setArticleCount(articleList.size());
-                    newsMessage.setArticles(articleList);
-                    respMessage = MsgUtil.newsMessageToXml(newsMessage);
+                    articleRespMsg.setArticleCount(articleList.size());
+                    articleRespMsg.setArticles(articleList);
+                    respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
                 }
                 // 取消订阅
                 else if (eventType.equals(MsgUtil.EVENT_TYPE_UNSUBSCRIBE)) {

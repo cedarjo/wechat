@@ -1,24 +1,21 @@
 package com.cedar.wechat.util;
 
+import com.cedar.wechat.model.AccessToken;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.cedar.wechat.model.AccessToken;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 /**
  * Created by Administrator on 2016/11/7.
@@ -28,9 +25,10 @@ public class WechatUtil {
 
     /**
      * 发起https请求并获取结果
-     * @param requestUrl 请求地址
+     *
+     * @param requestUrl    请求地址
      * @param requestMethod 请求方式（GET、POST）
-     * @param outputStr 提交的数据
+     * @param outputStr     提交的数据
      * @return JSONObject(通过JSONObject.get ( key)的方式获取json对象的属性值)
      */
     public static JSONObject httpRequest(String requestUrl, String requestMethod, String outputStr) {
@@ -96,15 +94,18 @@ public class WechatUtil {
 
     /**
      * 获取access_token
-     * @param appid 凭证
+     *
+     * @param appid     凭证
      * @param appsecret 密钥
      * @return
      */
     public static AccessToken getAccessToken(String appid, String appsecret) {
+        log.info("getAccessToken方法--appid：{}，appsecret：{}", appid, appsecret);
         AccessToken accessToken = null;
-
         String requestUrl = access_token_url.replace("APPID", appid).replace("APPSECRET", appsecret);
+        log.info("requestUrl:{}", requestUrl);
         JSONObject jsonObject = httpRequest(requestUrl, "GET", null);
+        log.info("response:{}", jsonObject);
         // 如果请求成功
         if (null != jsonObject) {
             try {
@@ -118,6 +119,7 @@ public class WechatUtil {
                         jsonObject.getString("errmsg"));
             }
         }
+        log.info("accessToken:{}", accessToken);
         return accessToken;
     }
 

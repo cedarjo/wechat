@@ -48,9 +48,10 @@ public class MenuController {
     //创建菜单
     @PostMapping(value = "/create")
     public int createMenu() {
-        log.debug("create");
+        log.info("createMenu");
         // 调用接口获取access_token
         String at = AccessTokenThread.accessToken.getToken();
+        log.info("access_token:{}", at);
         int result = 0;
         if (at != null) {
 
@@ -65,6 +66,7 @@ public class MenuController {
         }
         return result;
     }
+
 
     //删除菜单
     @PostMapping(value = "/delete")

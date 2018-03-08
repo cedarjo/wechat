@@ -1,15 +1,15 @@
 package com.cedar.wechat.service.impl;
 
-import java.util.Map;
-
+import com.cedar.wechat.controller.MenuController;
+import com.cedar.wechat.service.MenuService;
+import com.cedar.wechat.thread.AccessTokenThread;
+import com.cedar.wechat.util.WechatUtil;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.cedar.wechat.service.MenuService;
-import com.cedar.wechat.util.WechatUtil;
-
-import net.sf.json.JSONObject;
+import java.util.Map;
 
 /**
  * 对订阅号的菜单的操作
@@ -31,6 +31,7 @@ public class MenuServiceImpl implements MenuService {
 
     /**
      * 查询菜单
+     *
      * @param accessToken 有效的access_token
      * @return
      */
@@ -46,6 +47,7 @@ public class MenuServiceImpl implements MenuService {
 
     /**
      * 创建菜单(替换旧菜单)
+     *
      * @param accessToken 有效的access_token
      * @return 0表示成功，其他值表示失败
      */
@@ -69,8 +71,29 @@ public class MenuServiceImpl implements MenuService {
         return result;
     }
 
+    public static void main(String[] args) {
+        log.info("createMenu");
+        // 调用接口获取access_token
+        String at = WechatUtil.getAccessToken(AccessTokenThread.appid,
+                AccessTokenThread.appsecret).getToken();
+        log.info("access_token:{}", at);
+        int result = 0;
+        if (at != null) {
+
+            // 调用接口创建菜单
+            result = new MenuServiceImpl().createMenu(MenuController.getFirstMenu(), at);
+            // 判断菜单创建结果
+            if (0 == result) {
+                log.info("菜单创建成功！");
+            } else {
+                log.info("菜单创建失败，错误码：" + result);
+            }
+        }
+    }
+
     /**
      * 删除菜单
+     *
      * @param accessToken 有效的access_token
      * @return 0表示成功，其他值表示失败
      */
