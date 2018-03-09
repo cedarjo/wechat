@@ -1,6 +1,7 @@
 package com.cedar.wechat.service.req.common.impl;
 
 import com.cedar.wechat.model.req.BaseReqMsg;
+import com.cedar.wechat.model.resp.BaseRespMsg;
 import com.cedar.wechat.service.ReqService;
 import com.cedar.wechat.service.req.common.EventReqService;
 import com.cedar.wechat.util.SpringContextHolder;
@@ -15,7 +16,7 @@ import java.lang.reflect.Method;
 public class EventReqServiceImpl implements EventReqService {
 
     @Override
-    public <T extends BaseReqMsg> String processRequest(T request) {
+    public BaseRespMsg processRequest(BaseReqMsg request) {
         log.info("eventReqService-processRequest");
         String event;
         try {

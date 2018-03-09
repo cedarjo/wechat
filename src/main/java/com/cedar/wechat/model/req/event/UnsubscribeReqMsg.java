@@ -11,6 +11,6 @@ import lombok.ToString;
 public class UnsubscribeReqMsg extends EventReqMsg {
     @Override
     public String getEvent() {
-        return ReqMsgUtil.ReqMsgEventType.UNSUBSCRIBE;
+        return ReqMsgUtil.ReqMsgEventType.UN_SUBSCRIBE;
     }
 }

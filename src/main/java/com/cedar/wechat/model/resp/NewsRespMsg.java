@@ -1,6 +1,7 @@
 package com.cedar.wechat.model.resp;
 
-import com.cedar.wechat.util.RespMsgTypeEnum;
+import com.cedar.wechat.util.RespMsgUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import java.util.List;
 @Setter
 @ToString
 @Slf4j
+@XStreamAlias(RespMsgUtil.XmlNodeName.XML)
 public class NewsRespMsg extends BaseRespMsg {
     // 图文消息个数，限制为8条以内
     private Integer ArticleCount;
@@ -36,8 +38,7 @@ public class NewsRespMsg extends BaseRespMsg {
     // 点击图文消息跳转链接
     private String Url;
 
-    @Override
-    protected RespMsgTypeEnum getMsgType() {
-        return RespMsgTypeEnum.NEWS;
+    public NewsRespMsg() {
+        super(RespMsgUtil.RespMsgType.NEWS);
     }
 }

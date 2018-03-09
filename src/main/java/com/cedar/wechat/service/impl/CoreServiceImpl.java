@@ -3,13 +3,13 @@ package com.cedar.wechat.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cedar.wechat.model.resp.Article;
+import com.cedar.wechat.model.resp.BaseRespMsg;
 import com.cedar.wechat.model.resp.NewsRespMsg;
 import com.cedar.wechat.model.resp.TextRespMsg;
 import com.cedar.wechat.service.CoreService;
 import com.cedar.wechat.service.ReqService;
-import com.cedar.wechat.util.MsgUtil;
 import com.cedar.wechat.util.ReqMsgUtil;
-import com.cedar.wechat.util.RespMsgTypeEnum;
+import com.cedar.wechat.util.RespMsgUtil;
 import com.cedar.wechat.util.SpringContextHolder;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +43,8 @@ public class CoreServiceImpl implements CoreService {
             // 消息类型
             String msgType = obj.getString(ReqMsgUtil.ReqMsgKey.MSG_TYPE);
             ReqService reqService = SpringContextHolder.getReqService(StringUtils.lowerCase(msgType));
-            return reqService.processRequest(ReqMsgUtil.initParams(json));
+            BaseRespMsg response = reqService.processRequest(ReqMsgUtil.jsonToModel(json));
+            return RespMsgUtil.modelToXml(response);
         } catch (Exception e) {
             log.error("请求处理异常，请稍候尝试！", e);
             return "请求处理异常，请稍候尝试！";
@@ -69,14 +70,14 @@ public class CoreServiceImpl implements CoreService {
             textRespMsg.setToUserName(fromUserName);
             textRespMsg.setFromUserName(toUserName);
             textRespMsg.setCreateTime(new Date().getTime());
-            textRespMsg.setMsgType(RespMsgTypeEnum.TEXT);
+            textRespMsg.setMsgType(RespMsgUtil.RespMsgType.TEXT);
 
             // 创建图文消息
             NewsRespMsg articleRespMsg = new NewsRespMsg();
             articleRespMsg.setToUserName(fromUserName);
             articleRespMsg.setFromUserName(toUserName);
             articleRespMsg.setCreateTime(new Date().getTime());
-            articleRespMsg.setMsgType(RespMsgTypeEnum.NEWS);
+            articleRespMsg.setMsgType(RespMsgUtil.RespMsgType.NEWS);
 
             List<Article> articleList = new ArrayList<>();
             //点击菜单id
@@ -87,11 +88,11 @@ public class CoreServiceImpl implements CoreService {
             if (msgType.equals(ReqMsgUtil.ReqMsgType.TEXT)) {
 
                 // 如果用户发送表情，则回复同样表情。
-                if (MsgUtil.isQqFace(content)) {
+                if (ReqMsgUtil.isQqFace(content)) {
                     respContent = content;
                     textRespMsg.setContent(respContent);
                     // 将文本消息对象转换成xml字符串
-                    respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                    respMessage = RespMsgUtil.modelToXml(textRespMsg);
                 } else {
                     //回复固定消息
                     switch (content) {
@@ -107,7 +108,7 @@ public class CoreServiceImpl implements CoreService {
                             buffer.append("回复“1”显示此帮助菜单").append("\n");
                             respContent = String.valueOf(buffer);
                             textRespMsg.setContent(respContent);
-                            respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                            respMessage = RespMsgUtil.modelToXml(textRespMsg);
                             break;
                         }
                         case "11": {
@@ -123,7 +124,7 @@ public class CoreServiceImpl implements CoreService {
                             articleList.add(article);
                             articleRespMsg.setArticleCount(articleList.size());
                             articleRespMsg.setArticles(articleList);
-                            respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
+                            respMessage = RespMsgUtil.modelToXml(articleRespMsg);
                             break;
                         }
                         case "12": {
@@ -160,7 +161,7 @@ public class CoreServiceImpl implements CoreService {
                             articleList.add(article3);
                             articleRespMsg.setArticleCount(articleList.size());
                             articleRespMsg.setArticles(articleList);
-                            respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
+                            respMessage = RespMsgUtil.modelToXml(articleRespMsg);
                             break;
                         }
 
@@ -169,7 +170,7 @@ public class CoreServiceImpl implements CoreService {
                             respContent = "<a href=\"http://www.baidu.com\">百度主页</a>";
                             textRespMsg.setContent(respContent);
                             // 将文本消息对象转换成xml字符串
-                            respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                            respMessage = RespMsgUtil.modelToXml(textRespMsg);
                             break;
                         }
 
@@ -177,7 +178,7 @@ public class CoreServiceImpl implements CoreService {
                             respContent = "（这是里面的）很抱歉，现在小8暂时无法提供此功能给您使用。\n\n回复“1”显示帮助信息";
                             textRespMsg.setContent(respContent);
                             // 将文本消息对象转换成xml字符串
-                            respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                            respMessage = RespMsgUtil.modelToXml(textRespMsg);
                         }
                     }
                 }
@@ -189,21 +190,21 @@ public class CoreServiceImpl implements CoreService {
                 respContent = "您发送的是图片消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
-                respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                respMessage = RespMsgUtil.modelToXml(textRespMsg);
             }
             // 地理位置消息
             else if (msgType.equals(ReqMsgUtil.ReqMsgType.LOCATION)) {
                 respContent = "您发送的是地理位置消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
-                respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                respMessage = RespMsgUtil.modelToXml(textRespMsg);
             }
             // 链接消息
             else if (msgType.equals(ReqMsgUtil.ReqMsgType.LINK)) {
                 respContent = "您发送的是链接消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
-                respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                respMessage = RespMsgUtil.modelToXml(textRespMsg);
 
             }
             // 音频消息
@@ -211,14 +212,14 @@ public class CoreServiceImpl implements CoreService {
                 respContent = "您发送的是音频消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
-                respMessage = MsgUtil.textMessageToXml(textRespMsg);
+                respMessage = RespMsgUtil.modelToXml(textRespMsg);
             }
             // 事件推送
             else if (msgType.equals(ReqMsgUtil.ReqMsgType.EVENT)) {
                 // 事件类型
                 String eventType = params.getProperty("Event");
                 // 自定义菜单点击事件
-                if (eventType.equals(MsgUtil.EVENT_TYPE_CLICK)) {
+                if (eventType.equals(ReqMsgUtil.ReqMsgEventType.CLICK)) {
                     switch (EventKey) {
                         case "11": {
                             respContent = "这是第一栏第一个";
@@ -240,13 +241,13 @@ public class CoreServiceImpl implements CoreService {
                     }
                     textRespMsg.setContent(respContent);
                     // 将文本消息对象转换成xml字符串
-                    respMessage = MsgUtil.textMessageToXml(textRespMsg);
-                } else if (eventType.equals(MsgUtil.EVENT_TYPE_VIEW)) {
+                    respMessage = RespMsgUtil.modelToXml(textRespMsg);
+                } else if (eventType.equals(ReqMsgUtil.ReqMsgEventType.VIEW)) {
                     // 对于点击菜单转网页暂时不做推送
                 }
 
                 // 订阅
-                else if (eventType.equals(MsgUtil.EVENT_TYPE_SUBSCRIBE)) {
+                else if (eventType.equals(ReqMsgUtil.ReqMsgEventType.SUBSCRIBE)) {
                     //测试单图文回复
                     Article article = new Article();
                     article.setTitle("谢谢您的关注！");
@@ -258,8 +259,8 @@ public class CoreServiceImpl implements CoreService {
                     articleList.add(article);
                     articleRespMsg.setArticleCount(articleList.size());
                     articleRespMsg.setArticles(articleList);
-                    respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
-                } else if (eventType.equals(MsgUtil.EVENT_TYPE_SCAN)) {
+                    respMessage = RespMsgUtil.modelToXml(articleRespMsg);
+                } else if (eventType.equals(ReqMsgUtil.ReqMsgEventType.SCAN)) {
                     //测试单图文回复
                     Article article = new Article();
                     article.setTitle("这是已关注用户扫描二维码弹到的界面");
@@ -271,10 +272,10 @@ public class CoreServiceImpl implements CoreService {
                     articleList.add(article);
                     articleRespMsg.setArticleCount(articleList.size());
                     articleRespMsg.setArticles(articleList);
-                    respMessage = MsgUtil.newsMessageToXml(articleRespMsg);
+                    respMessage = RespMsgUtil.modelToXml(articleRespMsg);
                 }
                 // 取消订阅
-                else if (eventType.equals(MsgUtil.EVENT_TYPE_UNSUBSCRIBE)) {
+                else if (eventType.equals(ReqMsgUtil.ReqMsgEventType.UN_SUBSCRIBE)) {
                     // TODO 取消订阅后用户再收不到公众号发送的消息，因此不需要回复消息
                 }
 

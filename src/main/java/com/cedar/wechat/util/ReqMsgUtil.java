@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class ReqMsgUtil {
@@ -71,7 +73,7 @@ public class ReqMsgUtil {
         // 订阅
         public static final String SUBSCRIBE = "subscribe";
         // 取消订阅
-        public static final String UNSUBSCRIBE = "unsubscribe";
+        public static final String UN_SUBSCRIBE = "unsubscribe";
         // 扫描二维码已关注
         public static final String SCAN = "SCAN";
         // 上报地理位置
@@ -86,7 +88,7 @@ public class ReqMsgUtil {
         static {
             CONFIG = new HashMap<>();
             CONFIG.put(SUBSCRIBE, new ReqMsgConfig(SUBSCRIBE, QrSubscribeReqMsg.class));
-            CONFIG.put(UNSUBSCRIBE, new ReqMsgConfig(UNSUBSCRIBE, UnsubscribeReqMsg.class));
+            CONFIG.put(UN_SUBSCRIBE, new ReqMsgConfig(UN_SUBSCRIBE, UnsubscribeReqMsg.class));
             CONFIG.put(SCAN, new ReqMsgConfig(SCAN, QrScanReqMsg.class));
             CONFIG.put(LOCATION, new ReqMsgConfig(LOCATION, ReportLocationReqMsg.class));
             CONFIG.put(CLICK, new ReqMsgConfig(CLICK, MenuClickReqMsg.class));
@@ -101,13 +103,13 @@ public class ReqMsgUtil {
     @AllArgsConstructor
     public static class ReqMsgConfig {
         private String code;
-        private Class modelClass;
+        private Class<? extends BaseReqMsg> modelClass;
     }
 
     private static Class<? extends BaseReqMsg> initClass(String msgType, String event) {
         log.info("MsgType:{}", msgType);
         ReqMsgConfig typeConfig = ReqMsgType.CONFIG.get(msgType);
-        Class modelClass = typeConfig.getModelClass();
+        Class<? extends BaseReqMsg> modelClass = typeConfig.getModelClass();
         if (EventReqMsg.class.equals(modelClass)) {
             log.info("Event:{}", event);
             ReqMsgConfig eventConfig = ReqMsgEventType.CONFIG.get(event);
@@ -117,7 +119,7 @@ public class ReqMsgUtil {
         return modelClass;
     }
 
-    public static <T extends BaseReqMsg> T initParams(String json) {
+    public static <T extends BaseReqMsg> T jsonToModel(String json) {
         JSONObject jsonObject = JSON.parseObject(json);
         String msgType = jsonObject.getString(ReqMsgKey.MSG_TYPE);
         String event = jsonObject.getString(ReqMsgKey.EVENT);
@@ -161,6 +163,34 @@ public class ReqMsgUtil {
         inputStream = null;
 
         return json.toString();
+    }
+
+    /**
+     * 判断是否是QQ表情
+     *
+     * @param content
+     * @return
+     */
+    public static boolean isQqFace(String content) {
+        boolean result = false;
+
+        // 判断QQ表情的正则表达式
+        String qqfaceRegex =
+                "/::\\)|/::~|/::B|/::\\||/:8-\\)|/::<|/::$|/::X|/::Z|/::'\\(|/::-\\||/::@|/::P|/::D|/::O|/::\\" +
+                        "(|/::\\+|/:--b|/::Q|/::T|/:,@P|/:,@-D|/::d|/:,@o|/::g|/:\\|-\\)|/::!|/::L|/::>|/::,@|/:," +
+                        "@f|/::-S|/:\\?|/:,@x|/:,@@|/::8|/:,@!|/:!!!|/:xx|/:bye|/:wipe|/:dig|/:handclap|/:&-\\" +
+                        "(|/:B-\\)|/:<@|/:@>|/::-O|/:>-\\||/:P-\\(|/::'\\||/:X-\\)" +
+                        "|/::\\*|/:@x|/:8\\*|/:pd|/:<W>|/:beer|/:basketb|/:oo|/:coffee|/:eat|/:pig|/:rose|/:fade" +
+                        "|/:showlove|/:heart|/:break|/:cake|/:li|/:bome|/:kn|/:footb|/:ladybug|/:shit|/:moon|/:sun" +
+                        "|/:gift|/:hug|/:strong|/:weak|/:share|/:v|/:@\\)" +
+                        "|/:jj|/:@@|/:bad|/:lvu|/:no|/:ok|/:love|/:<L>|/:jump|/:shake|/:<O>|/:circle|/:kotow|/:turn" +
+                        "|/:skip|/:oY|/:#-0|/:hiphot|/:kiss|/:<&|/:&>";
+        Pattern p = Pattern.compile(qqfaceRegex);
+        Matcher m = p.matcher(content);
+        if (m.matches()) {
+            result = true;
+        }
+        return result;
     }
 
 }

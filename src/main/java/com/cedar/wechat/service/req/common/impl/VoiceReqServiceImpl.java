@@ -3,6 +3,7 @@ package com.cedar.wechat.service.req.common.impl;
 import com.cedar.wechat.model.req.BaseReqMsg;
 import com.cedar.wechat.model.req.common.VoiceRecognitionReqMsg;
 import com.cedar.wechat.model.req.common.VoiceReqMsg;
+import com.cedar.wechat.model.resp.BaseRespMsg;
 import com.cedar.wechat.service.req.common.VoiceReqService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class VoiceReqServiceImpl implements VoiceReqService {
 
     @Override
-    public <T extends BaseReqMsg> String processRequest(T request) {
+    public BaseRespMsg processRequest(BaseReqMsg request) {
         log.info("voiceReqService-processRequest");
         VoiceRecognitionReqMsg voiceRecognitionReqMsg = (VoiceRecognitionReqMsg) request;
         if (StringUtils.isNotBlank(voiceRecognitionReqMsg.getRecognition())) {
@@ -24,11 +25,11 @@ public class VoiceReqServiceImpl implements VoiceReqService {
         return voiceProcessRequest(voiceReqMsg);
     }
 
-    private String voiceProcessRequest(VoiceReqMsg voiceReqMsg) {
+    private BaseRespMsg voiceProcessRequest(VoiceReqMsg voiceReqMsg) {
         return null;
     }
 
-    private String voiceRecognitionProcessRequest(VoiceRecognitionReqMsg voiceRecognitionReqMsg) {
+    private BaseRespMsg voiceRecognitionProcessRequest(VoiceRecognitionReqMsg voiceRecognitionReqMsg) {
         return null;
     }
 }

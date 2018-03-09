@@ -1,5 +1,7 @@
 package com.cedar.wechat.model.resp;
 
+import com.cedar.wechat.util.RespMsgUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,6 +12,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@XStreamAlias(RespMsgUtil.XmlNodeName.ITEM)
 public class Article {
     // 图文消息名称
     private String Title;

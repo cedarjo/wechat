@@ -1,6 +1,5 @@
 package com.cedar.wechat.model.resp;
 
-import com.cedar.wechat.util.RespMsgTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -19,7 +18,9 @@ public abstract class BaseRespMsg {
     // 消息创建时间 （整型）
     private Long CreateTime;
     // 消息类型
-    private RespMsgTypeEnum MsgType;
+    private String MsgType;
 
-    protected abstract RespMsgTypeEnum getMsgType();
+    public BaseRespMsg(String msgType) {
+        this.MsgType = msgType;
+    }
 }
