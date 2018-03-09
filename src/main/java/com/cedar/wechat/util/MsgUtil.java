@@ -8,14 +8,8 @@ import com.thoughtworks.xstream.core.util.QuickWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.InputStream;
 import java.io.Writer;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,44 +46,6 @@ public class MsgUtil {
      */
     public static final String EVENT_TYPE_TRANSFER_CUSTOMER_SERVICE = "transfer_customer_service";
 
-    /**
-     * 解析微信发来的请求（XML）
-     *
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    @SuppressWarnings("unchecked")
-    //屏蔽某些编译时的警告信息(在强制类型转换的时候编译器会给出警告)
-    public static String parseJson(HttpServletRequest request) throws Exception {
-        // 将解析结果拼接一个json串
-        StringBuilder json = new StringBuilder();
-
-        // 从request中取得输入流
-        InputStream inputStream = request.getInputStream();
-        // 读取输入流
-        SAXReader reader = new SAXReader();
-        Document document = reader.read(inputStream);
-
-        // 得到xml根元素
-        Element root = document.getRootElement();
-        // 得到根元素的所有子节点
-        List<Element> elementList = root.elements();
-
-        // 遍历所有子节点
-        json.append("{");
-        for (Element e : elementList) {
-            json.append("\"").append(e.getName()).append("\":\"").append(e.getText()).append("\",");
-        }
-        json.deleteCharAt(json.length() - 1);
-        json.append("}");
-
-        // 释放资源
-        inputStream.close();
-        inputStream = null;
-
-        return json.toString();
-    }
 
     /**
      * 文本消息对象转换成xml

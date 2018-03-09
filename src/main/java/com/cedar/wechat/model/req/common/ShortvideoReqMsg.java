@@ -1,6 +1,6 @@
 package com.cedar.wechat.model.req.common;
 
-import com.cedar.wechat.util.ReqMsgTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +18,7 @@ public class ShortvideoReqMsg extends CommonReqMsg {
     private String ThumbMediaId;
 
     @Override
-    public ReqMsgTypeEnum getMsgType() {
-        return ReqMsgTypeEnum.SHORTVIDEO;
+    public String getMsgType() {
+        return ReqMsgUtil.ReqMsgType.SHORT_VIDEO;
     }
 }

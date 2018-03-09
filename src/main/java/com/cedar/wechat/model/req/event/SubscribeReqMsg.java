@@ -8,12 +8,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class MenuViewReqMsg extends EventReqMsg {
-    // 事件KEY值，设置的跳转URL
-    private String EventKey;
-
+public class SubscribeReqMsg extends EventReqMsg {
     @Override
     public String getEvent() {
-        return ReqMsgUtil.ReqMsgEventType.VIEW;
+        return ReqMsgUtil.ReqMsgEventType.SUBSCRIBE;
     }
 }

@@ -1,8 +1,7 @@
 package com.cedar.wechat.model.req.event;
 
 import com.cedar.wechat.model.req.BaseReqMsg;
-import com.cedar.wechat.util.ReqEventTypeEnum;
-import com.cedar.wechat.util.ReqMsgTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,12 +10,12 @@ import lombok.ToString;
 @Setter
 @ToString
 public abstract class EventReqMsg extends BaseReqMsg {
-    private ReqEventTypeEnum Event;
+    private String Event;
 
-    protected abstract ReqEventTypeEnum getEvent();
+    protected abstract String getEvent();
 
     @Override
-    public ReqMsgTypeEnum getMsgType() {
-        return ReqMsgTypeEnum.EVENT;
+    public String getMsgType() {
+        return ReqMsgUtil.ReqMsgType.EVENT;
     }
 }

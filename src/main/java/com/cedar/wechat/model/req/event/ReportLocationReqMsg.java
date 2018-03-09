@@ -1,6 +1,6 @@
 package com.cedar.wechat.model.req.event;
 
-import com.cedar.wechat.util.ReqEventTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,7 +17,7 @@ public class ReportLocationReqMsg extends EventReqMsg {
     private String Precision;
 
     @Override
-    public ReqEventTypeEnum getEvent() {
-        return ReqEventTypeEnum.LOCATION;
+    public String getEvent() {
+        return ReqMsgUtil.ReqMsgEventType.LOCATION;
     }
 }

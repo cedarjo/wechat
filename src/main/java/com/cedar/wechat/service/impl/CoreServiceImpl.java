@@ -7,7 +7,11 @@ import com.cedar.wechat.model.resp.NewsRespMsg;
 import com.cedar.wechat.model.resp.TextRespMsg;
 import com.cedar.wechat.service.CoreService;
 import com.cedar.wechat.service.ReqService;
-import com.cedar.wechat.util.*;
+import com.cedar.wechat.util.MsgUtil;
+import com.cedar.wechat.util.ReqMsgUtil;
+import com.cedar.wechat.util.RespMsgTypeEnum;
+import com.cedar.wechat.util.SpringContextHolder;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,13 +36,13 @@ public class CoreServiceImpl implements CoreService {
     public String processRequest(HttpServletRequest request) {
         try {
             // xml请求解析
-            String json = MsgUtil.parseJson(request);
+            String json = ReqMsgUtil.parseJson(request);
             log.info("入参：{}", json);
 
             JSONObject obj = JSON.parseObject(json);
             // 消息类型
-            String msgType = obj.getString(ReqMsgKeyEnum.MSG_TYPE.getValue());
-            ReqService reqService = SpringContextHolder.getReqService(msgType);
+            String msgType = obj.getString(ReqMsgUtil.ReqMsgKey.MSG_TYPE);
+            ReqService reqService = SpringContextHolder.getReqService(StringUtils.lowerCase(msgType));
             return reqService.processRequest(ReqMsgUtil.initParams(json));
         } catch (Exception e) {
             log.error("请求处理异常，请稍候尝试！", e);
@@ -80,7 +84,7 @@ public class CoreServiceImpl implements CoreService {
             // 接收文本消息内容
             String content = params.getProperty("Content");
             // 自动回复文本消息
-            if (msgType.equals(ReqMsgTypeEnum.TEXT.getValue())) {
+            if (msgType.equals(ReqMsgUtil.ReqMsgType.TEXT)) {
 
                 // 如果用户发送表情，则回复同样表情。
                 if (MsgUtil.isQqFace(content)) {
@@ -181,21 +185,21 @@ public class CoreServiceImpl implements CoreService {
 
 
             // 图片消息
-            else if (msgType.equals(ReqMsgTypeEnum.IMAGE.getValue())) {
+            else if (msgType.equals(ReqMsgUtil.ReqMsgType.IMAGE)) {
                 respContent = "您发送的是图片消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 地理位置消息
-            else if (msgType.equals(ReqMsgTypeEnum.LOCATION.getValue())) {
+            else if (msgType.equals(ReqMsgUtil.ReqMsgType.LOCATION)) {
                 respContent = "您发送的是地理位置消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 链接消息
-            else if (msgType.equals(ReqMsgTypeEnum.LINK.getValue())) {
+            else if (msgType.equals(ReqMsgUtil.ReqMsgType.LINK)) {
                 respContent = "您发送的是链接消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
@@ -203,14 +207,14 @@ public class CoreServiceImpl implements CoreService {
 
             }
             // 音频消息
-            else if (msgType.equals(ReqMsgTypeEnum.VOICE.getValue())) {
+            else if (msgType.equals(ReqMsgUtil.ReqMsgType.VOICE)) {
                 respContent = "您发送的是音频消息！";
                 textRespMsg.setContent(respContent);
                 // 将文本消息对象转换成xml字符串
                 respMessage = MsgUtil.textMessageToXml(textRespMsg);
             }
             // 事件推送
-            else if (msgType.equals(ReqMsgTypeEnum.EVENT.getValue())) {
+            else if (msgType.equals(ReqMsgUtil.ReqMsgType.EVENT)) {
                 // 事件类型
                 String eventType = params.getProperty("Event");
                 // 自定义菜单点击事件

@@ -1,6 +1,6 @@
 package com.cedar.wechat.model.req.event;
 
-import com.cedar.wechat.util.ReqEventTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +15,7 @@ public class QrScanReqMsg extends EventReqMsg {
     private String Ticket;
 
     @Override
-    public ReqEventTypeEnum getEvent() {
-        return ReqEventTypeEnum.SCAN;
+    public String getEvent() {
+        return ReqMsgUtil.ReqMsgEventType.SCAN;
     }
 }

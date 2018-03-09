@@ -1,6 +1,6 @@
 package com.cedar.wechat.model.req.common;
 
-import com.cedar.wechat.util.ReqMsgTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +18,7 @@ public class VoiceReqMsg extends CommonReqMsg {
     private String Format;
 
     @Override
-    public ReqMsgTypeEnum getMsgType() {
-        return ReqMsgTypeEnum.VOICE;
+    public String getMsgType() {
+        return ReqMsgUtil.ReqMsgType.VOICE;
     }
 }

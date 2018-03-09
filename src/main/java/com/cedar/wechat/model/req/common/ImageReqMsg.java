@@ -1,6 +1,6 @@
 package com.cedar.wechat.model.req.common;
 
-import com.cedar.wechat.util.ReqMsgTypeEnum;
+import com.cedar.wechat.util.ReqMsgUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +18,7 @@ public class ImageReqMsg extends CommonReqMsg {
     private String MediaId;
 
     @Override
-    public ReqMsgTypeEnum getMsgType() {
-        return ReqMsgTypeEnum.IMAGE;
+    public String getMsgType() {
+        return ReqMsgUtil.ReqMsgType.IMAGE;
     }
 }

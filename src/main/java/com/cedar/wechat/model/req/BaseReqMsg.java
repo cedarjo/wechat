@@ -1,6 +1,5 @@
 package com.cedar.wechat.model.req;
 
-import com.cedar.wechat.util.ReqMsgTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -19,8 +18,8 @@ public abstract class BaseReqMsg {
     // 消息创建时间 （整型）
     private Long CreateTime;
     // 消息类型
-    private ReqMsgTypeEnum MsgType;
+    private String MsgType;
 
-    protected abstract ReqMsgTypeEnum getMsgType();
+    protected abstract String getMsgType();
 
 }
